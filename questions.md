@@ -103,3 +103,51 @@ Best Practices:
    Return 200 OK quickly, process asynchronously if needed
    Implement idempotency to handle duplicate webhooks
 "
+Question api_payment_intent:
+Build a program that interacts with a payment API to:
+- Create a payment intent for a specified amount and currency
+- Retrieve the status of a payment
+- List transactions within a date range
+- Handle webhook notifications for payment events
+
+Question api_errorhandling:
+Write a robust client that interacts with an API that occasionally experiences downtime:
+- Implement exponential backoff for retries
+- Handle various HTTP error codes appropriately
+- Log failures and successful retries
+- Ensure TLS errors are properly detected and reported
+
+Question api_datatransformation:
+Fetch transaction data from an API and transform it:
+- Group transactions by categories
+- Calculate summary statistics (totals, averages)
+- Generate a report in a specific format (JSON, CSV)
+- Handle pagination to retrieve complete datasets
+
+Question api_troubleshootingconnectivity:
+Debug and fix a provided code sample that's failing to connect to an API:
+- Identify TLS/certificate issues
+- Fix authentication problems
+- Resolve incorrect request formatting
+- Implement proper error handling
+
+Question api_webhook:
+Create a system to:
+- Verify incoming webhook signatures
+- Process different event types
+- Store relevant event data
+- Trigger appropriate actions based on event type
+
+Question api_ratelimit:
+Build a client that respects API rate limits:
+- Parse rate limit headers
+- Implement a request queue
+- Add delays when approaching limits
+- Prioritize certain types of requests
+
+Question api_datasync:
+Write a program that:
+- Fetches customer data from one API
+- Updates customer profiles in another system
+- Identifies and resolves conflicts
+- Reports on synchronization status
