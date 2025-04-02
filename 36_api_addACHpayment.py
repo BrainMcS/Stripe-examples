@@ -111,17 +111,27 @@ class PaymentProcessor:
         response.raise_for_status()
         return response.json()
     
-    def create_sepa_payment_method(self, iban, name):
+    def create_sepa_payment_method(self, iban, name, email):
         """Create a SEPA Direct Debit PaymentMethod."""
         payload = {
             "type": "sepa_debit",
-            "sepa_debit[iban]": iban,
-            "billing_details[name]": name,
+            "sepa_debit": {"iban": iban},
+            "billing_details": {
+                "name": name,
+                "email": email
+            }
         }
         
-        response = self.session.post(f"{self.base_url}/payment_methods", data=payload)
-        response.raise_for_status()
-        return response.json()
+        try:
+            response = self.session.post(f"{self.base_url}/payment_methods", json=payload)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error creating SEPA PaymentMethod: {str(e)}")
+            if e.response:
+                print(f"Error details: {e.response.text}")
+                print(f"Payload sent: {payload}")
+            raise
 
 if __name__ == "__main__":
     API_KEY = os.getenv('STRIPE_API_KEY')
@@ -133,7 +143,8 @@ if __name__ == "__main__":
         # Create a SEPA Direct Debit PaymentMethod
         sepa_payment_method = client.create_sepa_payment_method(
             iban="DE89370400440532013000",  # Test IBAN
-            name="Jenny Rosen"
+            name="Jenny Rosen",
+            email="jenny.rosen@example.com"
         )
         print(f"Created SEPA PaymentMethod: {sepa_payment_method['id']}")
 
