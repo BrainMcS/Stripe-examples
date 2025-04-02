@@ -153,6 +153,31 @@ if __name__ == "__main__":
         confirmed_intent = client.session.post(f"{client.base_url}/payment_intents/{intent['id']}/confirm", data=confirm_payload)
         confirmed_intent.raise_for_status()
         print(f"Confirmed PaymentIntent: {confirmed_intent.json()['id']}")
+        
+        card_payment = client.create_card_payment(
+            amount=2000,  # $20.00
+            currency="usd",
+            card_details={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": 2023,
+                "cvc": "123"
+            },
+            description="Card payment test"
+        )
+
+        # Create an ACH payment
+        ach_payment = client.create_ach_payment(
+            amount=5000,  # $50.00
+            currency="usd",
+            bank_details={
+                "account_number": "000123456789",
+                "routing_number": "110000000",
+                "account_holder_name": "John Doe",
+                "account_type": "checking"
+            },
+            description="ACH payment test"
+        )
 
     except requests.exceptions.RequestException as e:
         print(f"Error: {str(e)}")
