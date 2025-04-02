@@ -4,6 +4,13 @@ import logging
 import ssl
 import json
 from requests.exceptions import SSLError, ConnectionError
+from dotenv import load_dotenv
+import os
+
+# Configuration
+load_dotenv()
+API_KEY = os.getenv("STRIPE_API_KEY")
+BASE_URL = "https://api.stripe.com/v1"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -136,10 +143,10 @@ if __name__ == "__main__":
     debugger = APIDebugger()
     
     # Example of debugging a problematic API call
-    url = "https://api.stripe.com/v1/users"
+    url = BASE_URL+"/customers"
     headers = {
-        "Authorization": "Bearer invalid_token",
-        "Content-Type": "application/json"
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/x-www-form-urlencoded"
     }
     
     result = debugger.diagnose_and_fix(url, headers)
