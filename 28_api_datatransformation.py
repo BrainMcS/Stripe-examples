@@ -158,7 +158,7 @@ class TransactionAnalyzer:
 
 # Usage example
 if __name__ == "__main__":
-    analyzer = TransactionAnalyzer(API_KEY, BASE_URL)
+    analyzer = TransactionAnalyzer(BASE_URL, API_KEY)
     
     # Generate a JSON report for January 2023
     json_report = analyzer.generate_report("2023-01-01", "2023-01-31", "json")
