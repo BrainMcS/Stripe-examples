@@ -151,3 +151,18 @@ Write a program that:
 - Updates customer profiles in another system
 - Identifies and resolves conflicts
 - Reports on synchronization status
+
+Question api_refundcapabilityextension:
+- Add refund method
+
+Question api_addwebhook:
+Our payment processing system currently receives webhook events but doesn't verify their authenticity. Extend the existing webhook handler to verify webhook signatures using Stripe's signature verification approach
+
+Question api_addpagination:
+Our API client can fetch customers but doesn't support pagination. Extend the client to fetch all customers by handling pagination correctly.
+
+Question api_addACHpayment:
+Our payment processor currently supports credit cards only. Extend it to support ACH bank transfers as well.
+
+Question api_addretry:
+Our API client doesn't handle transient network errors well. Implement retry logic with exponential backoff for all API calls.
