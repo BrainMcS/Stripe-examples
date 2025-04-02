@@ -19,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger("robust_client")
 
 class RobustAPIClient:
-    def __init__(self, base_url, api_key=None, max_retries=5, initial_backoff=1):
+    def __init__(self, api_key, base_url, max_retries=5, initial_backoff=1):
         self.base_url = base_url
         self.api_key = api_key
         self.max_retries = max_retries
@@ -27,10 +27,9 @@ class RobustAPIClient:
         self.session = requests.Session()
         
         if api_key:
-            self.session.headers.update({"Authorization": f"Bearer {api_key}"})
+            self.session.auth = (api_key, '')  # Use basic auth instead of Bearer token
     
     def request(self, method, endpoint, **kwargs):
-        """Make a request with automatic retries and exponential backoff."""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         retries = 0
         backoff = self.initial_backoff
@@ -115,7 +114,7 @@ if __name__ == "__main__":
     
     try:
         # Make a request with automatic retries
-        user_data = client.get("users/123")
-        print(f"Successfully retrieved user data: {user_data['name']}")
+        user_data = client.get("customers")  # Change 'users/123' to 'customers' or another valid Stripe endpoint
+        print(f"Successfully retrieved data: {user_data}")
     except Exception as e:
         print(f"Failed after multiple retries: {e}")
