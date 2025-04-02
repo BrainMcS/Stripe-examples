@@ -114,7 +114,7 @@ if __name__ == "__main__":
     
     try:
         # Make a request with automatic retries
-        user_data = client.get("customers")  # Change 'users/123' to 'customers' or another valid Stripe endpoint
+        user_data = client.get("customers")
         print(f"Successfully retrieved data: {user_data}")
     except Exception as e:
         print(f"Failed after multiple retries: {e}")
