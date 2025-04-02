@@ -1,4 +1,5 @@
 import requests
+import os
 
 class PaymentProcessor:
     def __init__(self, api_key, base_url="https://api.example.com/v1"):
@@ -90,32 +91,70 @@ class PaymentProcessor:
             bank_details=bank_details,
             description=description
         )
+    
+    def create_payment_intent(self, amount, currency, payment_method_types=None, description=None):
+        """Create a payment intent for the specified amount and currency."""
+        payload = {
+            "amount": amount,
+            "currency": currency,
+        }
+        
+        if payment_method_types:
+            payload["payment_method_types[]"] = payment_method_types
+        else:
+            payload["payment_method_types[]"] = ["card", "sepa_debit"]
+        
+        if description:
+            payload["description"] = description
+        
+        response = self.session.post(f"{self.base_url}/payment_intents", data=payload)
+        response.raise_for_status()
+        return response.json()
+    
+    def create_sepa_payment_method(self, iban, name):
+        """Create a SEPA Direct Debit PaymentMethod."""
+        payload = {
+            "type": "sepa_debit",
+            "sepa_debit[iban]": iban,
+            "billing_details[name]": name,
+        }
+        
+        response = self.session.post(f"{self.base_url}/payment_methods", data=payload)
+        response.raise_for_status()
+        return response.json()
 
-# Example usage
-processor = PaymentProcessor("sk_test_your_api_key")
+if __name__ == "__main__":
+    API_KEY = os.getenv('STRIPE_API_KEY')
+    BASE_URL = os.getenv('STRIPE_BASE_URL', 'https://api.stripe.com/v1')
 
-# Create a card payment
-card_payment = processor.create_card_payment(
-    amount=2000,  # $20.00
-    currency="usd",
-    card_details={
-        "number": "4242424242424242",
-        "exp_month": 12,
-        "exp_year": 2023,
-        "cvc": "123"
-    },
-    description="Card payment test"
-)
+    client = PaymentProcessor(API_KEY, BASE_URL)
 
-# Create an ACH payment
-ach_payment = processor.create_ach_payment(
-    amount=5000,  # $50.00
-    currency="usd",
-    bank_details={
-        "account_number": "000123456789",
-        "routing_number": "110000000",
-        "account_holder_name": "John Doe",
-        "account_type": "checking"
-    },
-    description="ACH payment test"
-)
+    try:
+        # Create a SEPA Direct Debit PaymentMethod
+        sepa_payment_method = client.create_sepa_payment_method(
+            iban="DE89370400440532013000",  # Test IBAN
+            name="Jenny Rosen"
+        )
+        print(f"Created SEPA PaymentMethod: {sepa_payment_method['id']}")
+
+        # Create a PaymentIntent for SEPA Direct Debit
+        intent = client.create_payment_intent(
+            amount=2000,  # Amount in cents (20.00 EUR)
+            currency="eur",
+            payment_method_types=["sepa_debit"],
+            description="SEPA Direct Debit payment test"
+        )
+        print(f"Created PaymentIntent: {intent['id']}")
+
+        # Confirm the PaymentIntent with the SEPA PaymentMethod
+        confirm_payload = {
+            "payment_method": sepa_payment_method['id']
+        }
+        confirmed_intent = client.session.post(f"{client.base_url}/payment_intents/{intent['id']}/confirm", data=confirm_payload)
+        confirmed_intent.raise_for_status()
+        print(f"Confirmed PaymentIntent: {confirmed_intent.json()['id']}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {str(e)}")
+        if e.response:
+            print(f"Error details: {e.response.text}")
