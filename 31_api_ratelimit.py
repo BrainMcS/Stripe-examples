@@ -4,6 +4,13 @@ import logging
 import queue
 import threading
 from typing import Dict, Any, List, Callable, Optional
+from dotenv import load_dotenv
+import os
+
+# Configuration
+load_dotenv()
+API_KEY = os.getenv("STRIPE_API_KEY")
+BASE_URL = "https://api.stripe.com/v1"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -176,8 +183,8 @@ class RateLimitedClient:
 if __name__ == "__main__":
     # Create a client with custom rate limits
     client = RateLimitedClient(
-        base_url="https://api.example.com/v1",
-        api_key="your_api_key",
+        base_url=BASE_URL,
+        api_key=API_KEY,
         default_rate_limit=100,
         default_rate_window=60,
         prioritized_endpoints=["payments", "customers"]  # Prioritize these endpoints
