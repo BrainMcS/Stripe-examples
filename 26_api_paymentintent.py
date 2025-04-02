@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import stripe
 from dotenv import load_dotenv
 import os
+from urllib.parse import urlencode
 
 # Configuration
 load_dotenv()
@@ -18,20 +19,33 @@ class PaymentClient:
         self.session = requests.Session()
         self.session.headers.update({
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/x-www-form-urlencoded"
         })
     
     def create_payment_intent(self, amount, currency, description=None):
         """Create a payment intent for the specified amount and currency."""
         payload = {
             "amount": amount,
-            "currency": currency
+            "currency": currency,
+            "payment_method_types[]": "card"
         }
         if description:
             payload["description"] = description
             
-        response = self.session.post(f"{self.base_url}/payment_intents", json=payload)
-        response.raise_for_status()
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        
+        response = self.session.post(
+            f"{self.base_url}/payment_intents",
+            data=urlencode(payload),
+            headers=headers
+        )
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print(f"Error response content: {response.text}")
+            raise
         return response.json()
     
     def get_payment_status(self, payment_id):

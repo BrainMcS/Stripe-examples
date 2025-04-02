@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from requests.exceptions import RequestException, HTTPError, ConnectionError, Timeout
+from urllib.parse import urlencode
 
 # Configure logging
 logging.basicConfig(
@@ -83,19 +84,27 @@ class PaymentClient:
         """Create a payment intent for the specified amount and currency."""
         payload = {
             "amount": amount,
-            "currency": currency
+            "currency": currency,
+            "payment_method_types[]": "card"
         }
         if description:
             payload["description"] = description
             
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        
+        response = self.session.post(
+            f"{self.base_url}/payment_intents",
+            data=urlencode(payload),
+            headers=headers
+        )
         try:
-            return self._make_request("POST", "payment_intents", json=payload)
-        except StripeError as e:
-            logger.error(f"Failed to create payment intent: {e}")
-            # You can add specific handling for certain error codes
-            if e.error_code == "currency_not_supported":
-                logger.error(f"Currency {currency} is not supported")
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print(f"Error response content: {response.text}")
             raise
+        return response.json()
     
     def get_payment_status(self, payment_id):
         """Retrieve the current status of a payment."""
