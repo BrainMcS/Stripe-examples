@@ -1,0 +1,8 @@
+requests
+python-dotenv
+stripe
+pandas
+dateutil
+flask
+fastapi
+cryptography
